@@ -1,0 +1,57 @@
+.orders-container {
+    transition: all 0.3s ease-in-out;
+}
+
+.orders-container .search {
+    padding: 0.45rem;
+}
+
+.orders-container .search input {
+    width: 100%;
+    border: none;
+    border-bottom: 2px solid #000;
+}
+
+.orders-container .search input:focus-visible {
+    outline: none;
+}
+
+.orders-list {
+    max-height: 90vh;
+    overflow: auto;
+}
+
+.orders-list::-webkit-scrollbar {
+    display: none;
+}
+
+.orders-list .order-wrapper {
+    display: flex;
+    align-items: flex-start;
+    width: 100%;
+    border: 1px solid #f0f0f0;
+    padding: 1rem 1.4rem;
+    cursor: pointer;
+}
+
+.orders-list .order-wrapper .image {
+    width: 15%;
+}
+
+.orders-list .order-wrapper .image img {
+    width: 50px;
+    height: 50px;
+}
+
+.orders-list .order-wrapper .content {
+    width: 70%;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+
+.orders-list .order-wrapper .timestamp {
+    width: 15%;
+}
