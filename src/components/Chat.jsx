@@ -7,10 +7,15 @@ function Chat() {
   const params = useParams();
   const { order } = useOrder();
 
-  const [messages, setMessages] = useState({});
   const [userMsg, setUserMsg] = useState("");
   const userInputRef = useRef(null);
   const chatWrapperRef = useRef(null);
+
+  const getDate = (timestamp) => {
+    const date = new Date(timestamp);
+    const formattedDate = date.toLocaleDateString("en-GB");
+    return formattedDate === new Date().toLocaleDateString("en-GB") ? 'Today' : formattedDate;
+  }
 
   const getTime = (timestamp) => {
     const date = new Date(timestamp);
@@ -36,27 +41,18 @@ function Chat() {
 
   const sendMessage = () => {
     // console.log(messages);
-    const msgDate = new Date().toLocaleDateString("en-GB");
     const msgObj = {
-      "messageId": order?.messageList?.length ? "msg" + parseInt(order.messageList[order.messageList.length - 1].messageId.split("msg")[1]) + 1 : "msg1",
+      "messageId": order?.messageList?.length ? 
+        ("msg" + (order.messageList[order.messageList.length]+1) + new Date().getTime()) : 
+        ("msg1" + new Date().getTime()),
       "message": userMsg,
       "timestamp": new Date().getTime(),
       "sender": "USER",
       "messageType": "text"
     }
-    const tempMessages = { ...messages };
-    if (Object.keys(tempMessages).length) {
-      if (tempMessages[msgDate]) {
-        tempMessages[msgDate].push(msgObj);
-      }
-      else {
-        tempMessages[msgDate] = [msgObj];
-      }
-    }
-    // console.log(tempMessages);
-    order.messageList.push(msgObj);
-    // console.log(order);
-    setMessages(tempMessages);
+
+    order.messageList.push(msgObj)
+
     setUserMsg("");
     setTimeout(() => {
       // lastChildElement?.scrollIntoView({ behavior: "smooth", block: "end" });//works
@@ -65,58 +61,53 @@ function Chat() {
     userInputRef.current.focus();
   }
 
-  useEffect(() => {
-    const tempMessages = {};
-    order?.messageList?.forEach((messageItem) => {
-      const msgDate = new Date(messageItem.timestamp).toLocaleDateString("en-GB");
-      if (tempMessages[msgDate]) {
-        tempMessages[msgDate].push(messageItem);
+  const showDate = (msg, index) => {
+    if (order?.messageList?.length) {
+      if (order.messageList[index - 1]) {
+        return new Date(msg.timestamp).toLocaleDateString() !== new Date(order.messageList[index - 1].timestamp).toLocaleDateString();
       }
       else {
-        tempMessages[msgDate] = [messageItem];
+        return true;
       }
-    });
-    // console.log(tempMessages);
-    setMessages(tempMessages);
-  }, [order]);
+    }
+    else {
+      return false;
+    }
+  }
 
   useEffect(() => {
-    console.log(params);
-    // setId(params.id);
-  }, [params]);
+    console.log(params);//ideally order details should be fetched from an API using the order id fetched from the params of this route
+  }, [params])
 
   return (
     <div className="chat-container" style={{ 'width': order ? '50%' : '0%' }}>
       <div className="header">
-        <img src={order?.imageURL} alt={order.title}/>
-        <h2>Flipkart Support</h2>
+        <img src={order?.imageURL} alt={order.title} />
+        <div className='title'>Flipkart Support</div>
       </div>
       <div className="chat-wrapper" ref={chatWrapperRef}>
         {
-          Object.keys(messages).length ? Object.keys(messages).map((msgKey) => (
-            messages[msgKey]?.length ? <div className='chat-session' key={msgKey}>
-              <div className='chat-day-wrapper'>
-                <div className='day'>{msgKey}</div>
-              </div>
-              {
-                messages[msgKey].map((msg) => (
-                  <div key={msg.messageId} className={'msg-main ' + msg.messageType + ' ' + msg.sender}>
-                    <div className='msg-wrapper'>
-                      <div className='msg-text'>{msg.message}</div>
-                      {msg.options?.length ? <div className={isMsgOlderThan24Hrs(msg.timestamp) ? 'options disabled' : 'options'} >
-                        {msg.options.map((option, index) => (
-                          <div key={index} className="option">
-                            <div className="text">{option.optionText}</div>
-                            <div className="sub-text">{option.optionSubText}</div>
-                          </div>
-                        ))}
-                      </div> : <></>}
-                      <div className='timestamp'><small>{getTime(msg.timestamp)}</small></div>
-                    </div>
-                  </div>
-                ))
+          order?.messageList?.length ? order.messageList.map((msg, index) => (
+            <div className='chat-list' key={msg.messageId + msg.timestamp} >
+              {showDate(msg, index) ? <div className='chat-day-wrapper'>
+                <div className='day'>{getDate(msg.timestamp)}</div>
+              </div> : <></>
               }
-            </div> : <></>
+              <div className={'msg-main ' + msg.messageType + ' ' + msg.sender}>
+                <div className='msg-wrapper'>
+                  <div className='msg-text'>{msg.message}</div>
+                  {msg.options?.length ? <div className={isMsgOlderThan24Hrs(msg.timestamp) ? 'options disabled' : 'options'} >
+                    {msg.options.map((option, index) => (
+                      <div key={index} className="option">
+                        <div className="text">{option.optionText}</div>
+                        <div className="sub-text">{option.optionSubText}</div>
+                      </div>
+                    ))}
+                  </div> : <></>}
+                  <div className='timestamp'><small>{getTime(msg.timestamp)}</small></div>
+                </div>
+              </div>
+            </div>
           ))
             : <div className='start-conv'>
               {'Send a message to start chatting'}
@@ -125,7 +116,7 @@ function Chat() {
       </div>
       <div className="chat-input">
         <input onKeyUp={onEnter} ref={userInputRef} type="text" placeholder="Type a Message..." value={userMsg} onChange={(e) => setUserMsg(e.target.value)} />
-        <button style={{backgroundColor: '#027CD5'}} onClick={() => sendMessage()} disabled={!userMsg.length}>▶</button>
+        <button style={{ backgroundColor: '#027CD5' }} onClick={() => sendMessage()} disabled={!userMsg.length}>▶</button>
       </div>
     </div>
   );

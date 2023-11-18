@@ -6,6 +6,11 @@
     padding: 0.45rem;
 }
 
+.search .search-title {
+    /* font-size: 18px; */
+    font-weight: 600;
+}
+
 .orders-container .search input {
     width: 100%;
     border: none;
@@ -34,6 +39,11 @@
     cursor: pointer;
 }
 
+.order-wrapper.active {
+    background-color: #f1f3f6;
+    border-right-color: transparent;
+}
+
 .orders-list .order-wrapper .image {
     width: 15%;
 }
@@ -51,7 +61,14 @@
     align-items: flex-start;
 }
 
+.order-wrapper .content .last-msg {
+    font-size: 14px;
+    color: #868686;
+}
+
 
 .orders-list .order-wrapper .timestamp {
     width: 15%;
+    font-size: 14px;
+    color: #868686;
 }
